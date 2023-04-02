@@ -1,11 +1,77 @@
 import Head from 'next/head'
-import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
 import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import { motion } from 'framer-motion'
+import { characters_R, characters_SR, characters_SSR } from '@/models/characters'
+import { characterTypes } from '@/types/characterTypes'
+import Image from 'next/image'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+
+  const [isGacha, setIsGacha] = useState(false)
+  const [datas, setDatas] = useState<characterTypes>()
+
+  const variants = {
+    open: { opacity: 0.4 },
+    closed: { opacity: 0 },
+  }
+
+  const variants_dialog = {
+    open: {
+      scale: 1,
+      rotate: 0
+    },
+    closed: {
+      scale: 0,
+      rotate: 0
+    },
+  }
+
+  useEffect(() => {
+    if (isGacha) {
+      const resGacha = Math.floor(Math.random() * 100) + 1
+      let getCharacter: characterTypes
+      if (resGacha > 95 && resGacha <= 100) {
+        // check SSR
+        getCharacter = characters_SSR[Math.floor(Math.random() * characters_SSR.length)]
+        setDatas(() => {
+          return {
+            name: getCharacter.name,
+            rare: getCharacter.rare,
+            imageUrl: getCharacter.imageUrl
+          }
+        })
+      } else if (resGacha > 85 && resGacha <= 95) {
+        // check SR
+        getCharacter = characters_SR[Math.floor(Math.random() * characters_SR.length)]
+        setDatas(() => {
+          return {
+            name: getCharacter.name,
+            rare: getCharacter.rare,
+            imageUrl: getCharacter.imageUrl
+          }
+        })
+      } else {
+        // check R
+        getCharacter = characters_R[Math.floor(Math.random() * characters_R.length)]
+        setDatas(() => {
+          return {
+            name: getCharacter.name,
+            rare: getCharacter.rare,
+            imageUrl: getCharacter.imageUrl
+          }
+        })
+      }
+      // console.log(resGacha);
+      // console.log(getCharacter);
+    }
+
+  }, [isGacha])
+
+
+
   return (
     <>
       <Head>
@@ -14,109 +80,66 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+      <main className='h-screen w-screen flex justify-center'>
+        <Image src={"/bg.jpg"} alt='bg' width={2000} height={2000} className='absolute h-screen w-screen object-cover -z-40' quality="100"/>
+        <div className='h-full w-full flex justify-center items-start md:items-center flex-col px-8'>
+          <h1 className='text-3xl font-bold text-slate-800'>XrlsnimE</h1>
+          <p>{"-> Simple Gacha Anime"}</p>
+          <motion.div
+            onClick={() => {
+              setIsGacha((prev) => !prev)
+            }}
+            className={"bg-slate-900 py-2 px-2 rounded-lg mt-2 cursor-pointer"}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}>
+            <p className='text-white'>Rolls Here..</p>
+          </motion.div>
+        </div>
+
+        {/* dialog */}
+        <motion.div
+          className={`h-screen w-screen bg-black absolute ${isGacha ? "pointer-events-auto" : "pointer-events-none"}`}
+          initial={{ opacity: 0, }}
+          animate={isGacha ? "open" : "closed"}
+          variants={variants}
+          transition={{ duration: 0.5 }}
+          onClick={() => {
+            setIsGacha(() => false)
+          }}
+        >
+
+        </motion.div>
+
+        <motion.div
+          drag
+          dragConstraints={{
+            top: -50,
+            left: -50,
+            right: 50,
+            bottom: 50,
+          }}
+          className='bg-white h-fit p-6 w-[300px] max-w-[300px] absolute rounded-md m-auto left-0 right-0 top-0 bottom-0'
+          initial={{
+            scale: 0,
+            rotate: 0,
+          }}
+          variants={variants_dialog}
+          animate={isGacha ? "open" : "closed"}
+          transition={{
+            duration: 0.3,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}>
+          <div className='flex flex-col'>
+            <h1 className='text-3xl font-bold'>Congratulation</h1>
+            <p>You get <span>{datas?.name} ( {datas?.rare} )</span></p>
+            <motion.div
+              className={`w-full h-[200px] rounded-md overflow-hidden mt-2`}
             >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
+              <img src={datas?.imageUrl} alt={datas?.name} className={`h-full object-cover pointer-events-none`} />
+            </motion.div>
           </div>
-        </div>
 
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+        </motion.div>
       </main>
     </>
   )
