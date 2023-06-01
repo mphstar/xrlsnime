@@ -135,7 +135,7 @@ export default function Home() {
             <motion.div
               className={`w-full h-[200px] rounded-md overflow-hidden mt-2`}
             >
-              <img src={datas?.imageUrl} alt={datas?.name} className={`h-full object-cover pointer-events-none`} />
+              <Image width={2000} height={2000} src={datas?.imageUrl} alt={datas?.name} className={`h-full object-cover pointer-events-none`} />
             </motion.div>
           </div>
 
